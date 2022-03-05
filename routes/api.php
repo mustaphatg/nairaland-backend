@@ -17,7 +17,8 @@ use Illuminate\Support\Facades\Route;
 //Route::middleware('auth:api')->group(
 
 
-Route::middleware(["my-cors"])->group(function() {
+//Route::middleware(["my-cors"])->group(function() {
+	
 	// nairaland home
 	Route::get("/home", "NairalandController@index");
 
@@ -35,4 +36,4 @@ Route::middleware(["my-cors"])->group(function() {
 	
 	
 	
-});
+//});
