@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(["my-cors"])->group(function() {
 	// nairaland home
-	Route::get("/", "NairalandController@index");
+	Route::get("/home", "NairalandController@index");
 
 
 	// category
