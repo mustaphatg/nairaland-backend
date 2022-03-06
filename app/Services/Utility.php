@@ -32,22 +32,94 @@ class Utility {
 	}
 	
 	
-	
+	// nairaland category
 	public function category($name){
-		$crawl = $this->scrapeRequest->get($name);
-		$links = $crawl->filter(".featured.w a");
-
-		$results = [];
-
-		foreach ($links as $node) {
-
-			$data = [
-				"href" => $node->getAttribute("href"),
-				"text" => $node->nodeValue,
-			];
-
-			$results[] = $data;
+		 $crawl = $this->scrapeRequest->get($name);
+		
+		//file_put_contents("category.html", $crawl->html());
+		
+		//$crawl = new Crawler(file_get_contents("category.html"));
+	
+		$tables = $crawl->filter("table");
+		
+		$table_count = $tables->count();
+		Log::debug($table_count);
+		
+		if($tables->count() < 2){
+			return null;
 		}
+		
+		
+		// determine which table to scrape
+			switch ($table_count) {
+				case 3:
+					$table_number = 1;
+					break;
+				case 4:
+					$table_number = 2;
+					break;
+				
+				default:
+					break;
+			}
+		
+		
+		$table = $tables->eq($table_number);
+	
+		
+		$tr = $table->filter("tr");
+		
+		$results = [];
+		
+		foreach($tr as $k => $value){
+			
+			if($k == 0) { continue; }
+			
+			$el = new Crawler($value);
+			
+			
+			$a = $el->filter("a")->eq(1);
+			
+			// topic
+			$tp = new \stdClass();
+			$tp->text = $a->text();
+			$tp->href = $a->attr("href");
+			$tp->new_post = false;
+			
+			
+			// new post
+				$tt = $el->html();
+
+				if(preg_match("/new.gif/", $tt)){
+					$tp->new_post = true;
+				}
+				
+			// creator span tag
+			$span = $el->filter(".s");
+			
+			// user link
+			$user_link = $span->filter("a")->eq(0);
+			$tp->creator = $user_link->text();
+			
+			
+			// replies , views and time
+			$all_b_tags = $span->filter("b");
+			
+			//replies
+				$replies = $all_b_tags->eq(1)->text();
+				$tp->replies = $replies;
+			
+			//views
+				$views = $all_b_tags->eq(2)->text();
+				$tp->views = $views;
+				
+			// time
+				$time = $all_b_tags->eq(3)->text();
+				$tp->time = $time;
+				
+			$results[] = $tp;
+		}
+		
 		
 		return $results;
     }
@@ -56,6 +128,7 @@ class Utility {
 	
 	public function section(){
 		$crawl = new Crawler(file_get_contents("sub.html"));
+	
 		$table = $crawl->filter("table.boards");
 		
 		$tr = $table->filter("tr");
@@ -117,7 +190,7 @@ class Utility {
     
     
 	
-	private function formatReply($user, $post){
+	private function formatReply($user, $post, $tr){
 		$reply = new \stdClass();
 		
 		// user
@@ -137,8 +210,8 @@ class Utility {
 		
 		// body
 			$bd = $post;
-			$bq = $bd->filter(".narrow");
-			$reply->body = $bq->html();
+			//$bq = $bd->filter(".narrow");
+			$reply->body = $bd->html();
 		
 		return $reply;
 	}
@@ -199,11 +272,11 @@ class Utility {
 						continue;
 					}
 					
-					Log::debug($key);
+					
 					$current_row = $value;
 					$next_row = $tr->eq($key + 1);
 						
-					$reply = $this->formatReply($current_row , $next_row );      		
+					$reply = $this->formatReply($current_row , $next_row , $tr);      		
 					
 					if($reply != null){
 						$replies[] = $reply;

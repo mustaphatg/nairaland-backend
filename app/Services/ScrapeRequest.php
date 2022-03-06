@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Log;
 			try{
 				$uri = str_replace("https://www.nairaland.com/", "", $uri);
 				
+				Log::debug($uri);
+				
 				$crawler = $client->request("GET", "https://www.nairaland.com/$uri");                         
 				return $crawler;
 				

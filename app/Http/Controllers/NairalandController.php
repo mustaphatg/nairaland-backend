@@ -21,15 +21,15 @@ class NairalandController extends Controller{
 	
 	
 	// nairaland subscatehory
-	public function category(Request $re, $name){      
-		$result = $this->utility->category($name);
+	public function category(Request $re){      
+		$result = $this->utility->category($re->name);
 		return response()->json($result);
 	}
 	
 	
 	public function a(Request $re){
-		$d = file_get_contents("https://www.nairaland.com");    
-		file_put_contents("sub.html", $d);
+		$d = file_get_contents("https://www.nairaland.com/crime");    
+		file_put_contents("category.html", $d);
 		echo 899;
     }
 	

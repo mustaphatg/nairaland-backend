@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Route;
 
 
 	// category
-	Route::get("/category/{name}", "NairalandController@category");
+	Route::post("/category/", "NairalandController@category");
 
 		// topic
 	Route::post("/topic", "NairalandController@topic");
